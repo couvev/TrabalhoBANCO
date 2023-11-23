@@ -42,6 +42,7 @@ def main():
                 "| 6 - Transferir de uma conta para outra           |\n"
                 "| 7 - Imprimir extrato de uma conta                |\n"
                 "| 8 - Imprimir histórico do sistema                |\n"
+                "| 9 - Apagar uma conta                             |\n"
                 "|==================================================|\n"
                 "| -1 - Encerrar programa                           |\n"
                 "|==================================================|\n\n")
@@ -140,7 +141,6 @@ def main():
                 else:
                     print("\nNenhuma informação encontrada ou conta inexistente.") 
                            
-         
         elif opcao == 4:
             conta_destino = input("Número da conta destino: ")
             valor_transferencia = float(input("Valor a ser depositado: "))
@@ -273,12 +273,17 @@ def main():
                 
         elif opcao == 7:
                 extrato_conta = int(input("\nDigite o numero da conta desejada: "))
-
-                for conta in contas:
-                    if conta.numero == extrato_conta:
-                        extrato_da_conta = conta.obter_extrato()
-                        for extrato in extrato_da_conta:
-                            print(f"Informacao: {extrato.informacao}, Data: {extrato.data}\n")
+                
+                if extrato_conta in num_contas:
+                    for conta in contas:
+                        if conta.numero == extrato_conta:
+                            extrato_da_conta = conta.obter_extrato()
+                            for extrato in extrato_da_conta:
+                                print(f"Informacao: {extrato.informacao}, Data: {extrato.data}\n")
+                                
+                else:
+                    print("Conta não encontrada!")
+                    pass
 
                 data_hora_atual = datetime.now()
                 data_hora_formatada = data_hora_atual.strftime("%d-%m-%Y %H:%M:%S")
@@ -286,12 +291,42 @@ def main():
                 h_info = f"Extrato da conta {extrato_conta} acessado."
                 h = Historico(data_hora_formatada, h_info)
                 historico.append(h)
-
-        
+     
         elif opcao == 8:
             for his in historico:
                 print(f"Evento: {his.informacao} - {his.data}\n")
-                
+        
+        elif opcao == 9:
+            numero_conta_apagar = int(input("Digite o número da conta que deseja apagar: "))
+
+            conta_apagar = None
+            for conta in contas:
+                if conta.numero == numero_conta_apagar:
+                    conta_apagar = conta
+                    break
+
+            if conta_apagar:
+                cliente_associado = None
+                for cliente in clientes:
+                    if cliente.cpf == conta_apagar.cpf:
+                        cliente_associado = cliente
+                        break
+
+                if cliente_associado:
+                    confirm = str(input(f"Conta encontrada!\n\nNome do cliente: {cliente_associado.nome}\nCPF: {cliente_associado.cpf}\nNumero da conta:{conta_apagar.numero}\nSaldo: {conta_apagar.saldo}\n\nPara confirmar digite APAGAR: "))
+                    if confirm == "APAGAR": 
+                        contas.remove(conta_apagar)
+                        clientes.remove(cliente_associado)
+                        num_contas.remove(numero_conta_apagar)
+                        print(f"A conta {numero_conta_apagar} foi apagada com sucesso.")
+                    else: 
+                        print("Conta não removida!")
+                        pass
+                else:
+                    print("Cliente associado não encontrado. Algo está errado!")
+            else:
+                print(f"Conta {numero_conta_apagar} não encontrada.")
+
     salvar_dados()
                         
 if __name__ == "__main__":
